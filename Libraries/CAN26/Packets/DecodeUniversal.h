@@ -1,0 +1,108 @@
+#pragma once
+
+/**
+ * This file contains routines to decode the Universal packets
+ * The results of decoding are placed into a struct
+ * This allows one to do something like:
+ *   CANUniversalPacket_FirmwareVersion_Decode(&packet).versionID
+ */
+
+#include "Universal.h"
+
+typedef struct {
+    CANDevice_t sender;
+    CANDevice_t receiver;
+} CANUniversalPacket_EStop_Decoded_t;
+
+/**
+ * Decodes an EStop packet into its sender
+ */
+inline static CANUniversalPacket_EStop_Decoded_t
+CANUniversalPacket_EStop_Decode(const CANPacket_t *packet) {
+    return (CANUniversalPacket_EStop_Decoded_t){
+        .sender = (CANDevice_t){.deviceUUID = packet->senderUUID},
+        .receiver = packet->device
+    };
+}
+
+typedef struct {
+    CANDevice_t sender;
+    CANDevice_t receiver;
+    uint32_t error;
+    uint8_t state;
+} CANUniversalPacket_HeartBeat_Decoded_t;
+
+/**
+ * Decodes a heartbeat packet into its sender, error status, and state
+ */
+inline static CANUniversalPacket_HeartBeat_Decoded_t
+CANUniversalPacket_HeartBeat_Decode(const CANPacket_t *packet) {
+    CANUniversalPacket_HeartBeat_Decoded_t result = {
+        .sender = (CANDevice_t){.deviceUUID = packet->senderUUID},
+        .receiver = packet->device,
+        .state = packet->contents[4]
+    };
+    result.error = CANLoadUInt32(packet->contents + 0);
+    return result;
+}
+
+typedef struct {
+    CANDevice_t sender;
+    CANDevice_t receiver;
+    bool failure;
+    CANCommand_t commandID;
+} CANUniversalPacket_Acknowledge_Decoded_t;
+
+/**
+ * Decodes a general acknowledge packet into its sender, whether the request failed, and the command id
+ * The command id does not include the acknowledgement bit
+ */
+inline static CANUniversalPacket_Acknowledge_Decoded_t
+CANUniversalPacket_Acknowledge_Decode(const CANPacket_t *packet) {
+    return (CANUniversalPacket_Acknowledge_Decoded_t){
+        .sender = (CANDevice_t){.deviceUUID = packet->senderUUID},
+        .receiver = packet->device,
+        .failure = (bool)packet->contents[0],
+        .commandID = packet->contents[1],
+    };
+}
+
+typedef struct {
+    CANDevice_t sender;
+    CANDevice_t receiver;
+} CANUniversalPacket_GetFirmwareVersion_Decoded_t;
+
+/**
+ * Decodes a get firmware version packet into its sender
+ */
+inline static CANUniversalPacket_GetFirmwareVersion_Decoded_t
+CANUniversalPacket_GetFirmwareVersion_Decode(const CANPacket_t *packet) {
+    return (CANUniversalPacket_GetFirmwareVersion_Decoded_t){
+        .sender = (CANDevice_t){.deviceUUID = packet->senderUUID},
+        .receiver = packet->device
+    };
+}
+
+typedef struct {
+    CANDevice_t sender;
+    CANDevice_t receiver;
+    uint16_t versionID;
+    char name[CAN_FIRMWARE_VERSION_LEN];
+} CANUniversalPacket_FirmwareVersion_Decoded_t;
+
+/**
+ * Decodes a firmware version packet into the version name and id
+ */
+inline static CANUniversalPacket_FirmwareVersion_Decoded_t
+CANUniversalPacket_FirmwareVersion_Decode(const CANPacket_t *packet) {
+    uint16_t versionID = CANLoadUInt16(packet->contents + 0);
+    CANUniversalPacket_FirmwareVersion_Decoded_t result = {
+        .sender = (CANDevice_t){.deviceUUID = packet->senderUUID},
+        .receiver = packet->device,
+        .versionID = versionID
+    };
+    for (int i = 0; i < CAN_FIRMWARE_VERSION_LEN; ++i) {
+        result.name[i] = packet->contents[i + 2];
+    }
+    return result;
+}
