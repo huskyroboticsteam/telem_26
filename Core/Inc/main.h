@@ -61,10 +61,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define POWER_CYCLE_Pin GPIO_PIN_3
 #define POWER_CYCLE_GPIO_Port GPIOA
-#define LIM_SWITCH1_Pin GPIO_PIN_4
-#define LIM_SWITCH1_GPIO_Port GPIOC
-#define LIM_SWITCH2_Pin GPIO_PIN_5
-#define LIM_SWITCH2_GPIO_Port GPIOC
+#define LIMIT_SWITCH_1_Pin GPIO_PIN_4
+#define LIMIT_SWITCH_1_GPIO_Port GPIOC
+#define LIMIT_SWITCH_2_Pin GPIO_PIN_5
+#define LIMIT_SWITCH_2_GPIO_Port GPIOC
 #define LED_0_Pin GPIO_PIN_0
 #define LED_0_GPIO_Port GPIOB
 #define LED_1_Pin GPIO_PIN_1
