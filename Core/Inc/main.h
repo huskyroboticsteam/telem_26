@@ -65,8 +65,6 @@ void Error_Handler(void);
 #define LIMIT_SWITCH_1_GPIO_Port GPIOC
 #define LIMIT_SWITCH_2_Pin GPIO_PIN_5
 #define LIMIT_SWITCH_2_GPIO_Port GPIOC
-#define LED_0_Pin GPIO_PIN_0
-#define LED_0_GPIO_Port GPIOB
 #define LED_1_Pin GPIO_PIN_1
 #define LED_1_GPIO_Port GPIOB
 #define CAN_LED_Pin GPIO_PIN_11
