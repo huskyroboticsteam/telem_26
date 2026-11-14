@@ -61,12 +61,12 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define POWER_CYCLE_Pin GPIO_PIN_3
 #define POWER_CYCLE_GPIO_Port GPIOA
+#define NIGHT_LIGHT_Pin GPIO_PIN_7
+#define NIGHT_LIGHT_GPIO_Port GPIOA
 #define LIMIT_SWITCH_1_Pin GPIO_PIN_4
 #define LIMIT_SWITCH_1_GPIO_Port GPIOC
 #define LIMIT_SWITCH_2_Pin GPIO_PIN_5
 #define LIMIT_SWITCH_2_GPIO_Port GPIOC
-#define LED_1_Pin GPIO_PIN_1
-#define LED_1_GPIO_Port GPIOB
 #define CAN_LED_Pin GPIO_PIN_11
 #define CAN_LED_GPIO_Port GPIOB
 #define BRAKE_ELBOW_Pin GPIO_PIN_14
@@ -75,6 +75,8 @@ void Error_Handler(void);
 #define BRAKE_SHOULDER_GPIO_Port GPIOB
 #define BRAKE_BASE_Pin GPIO_PIN_6
 #define BRAKE_BASE_GPIO_Port GPIOC
+#define ADD_PIN_Pin GPIO_PIN_8
+#define ADD_PIN_GPIO_Port GPIOC
 #define DBG_LED_Pin GPIO_PIN_4
 #define DBG_LED_GPIO_Port GPIOB
 #define ERR_LED_Pin GPIO_PIN_5

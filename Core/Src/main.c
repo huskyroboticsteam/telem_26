@@ -44,6 +44,7 @@ FDCAN_HandleTypeDef hfdcan2;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
+DMA_HandleTypeDef hdma_tim3_ch3;
 
 /* USER CODE BEGIN PV */
 
@@ -52,6 +53,7 @@ TIM_HandleTypeDef htim8;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_FDCAN2_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM3_Init(void);
@@ -93,6 +95,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FDCAN2_Init();
   MX_TIM8_Init();
   MX_TIM3_Init();
@@ -105,7 +108,8 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  TelemetryCAN_Process();
+	  TelemetryLEDs_Update();
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -216,7 +220,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 0;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 65535;
+  htim3.Init.Period = 19;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -336,6 +340,23 @@ static void MX_TIM8_Init(void)
 }
 
 /**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMAMUX1_CLK_ENABLE();
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -353,17 +374,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, POWER_CYCLE_Pin|GPIO_PIN_7, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, POWER_CYCLE_Pin|NIGHT_LIGHT_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LED_1_Pin|CAN_LED_Pin|BRAKE_ELBOW_Pin|BRAKE_SHOULDER_Pin
-                          |DBG_LED_Pin|ERR_LED_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CAN_LED_Pin|BRAKE_ELBOW_Pin|BRAKE_SHOULDER_Pin|DBG_LED_Pin
+                          |ERR_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(BRAKE_BASE_GPIO_Port, BRAKE_BASE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, BRAKE_BASE_Pin|ADD_PIN_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : POWER_CYCLE_Pin PA7 */
-  GPIO_InitStruct.Pin = POWER_CYCLE_Pin|GPIO_PIN_7;
+  /*Configure GPIO pins : POWER_CYCLE_Pin NIGHT_LIGHT_Pin */
+  GPIO_InitStruct.Pin = POWER_CYCLE_Pin|NIGHT_LIGHT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -375,21 +396,37 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED_1_Pin CAN_LED_Pin BRAKE_ELBOW_Pin BRAKE_SHOULDER_Pin
-                           DBG_LED_Pin ERR_LED_Pin */
-  GPIO_InitStruct.Pin = LED_1_Pin|CAN_LED_Pin|BRAKE_ELBOW_Pin|BRAKE_SHOULDER_Pin
-                          |DBG_LED_Pin|ERR_LED_Pin;
+  /*Configure GPIO pins : CAN_LED_Pin BRAKE_ELBOW_Pin BRAKE_SHOULDER_Pin DBG_LED_Pin
+                           ERR_LED_Pin */
+  GPIO_InitStruct.Pin = CAN_LED_Pin|BRAKE_ELBOW_Pin|BRAKE_SHOULDER_Pin|DBG_LED_Pin
+                          |ERR_LED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : BRAKE_BASE_Pin */
-  GPIO_InitStruct.Pin = BRAKE_BASE_Pin;
+  /*Configure GPIO pins : BRAKE_BASE_Pin ADD_PIN_Pin */
+  GPIO_InitStruct.Pin = BRAKE_BASE_Pin|ADD_PIN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(BRAKE_BASE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PC10 PC11 */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|GPIO_PIN_11;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PB6 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
