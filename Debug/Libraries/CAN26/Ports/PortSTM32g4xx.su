@@ -1,0 +1,3 @@
+../Libraries/CAN26/Ports/PortSTM32g4xx.c:35:9:CANInit	56	static
+../Libraries/CAN26/Ports/PortSTM32g4xx.c:87:9:CANSend	56	static
+../Libraries/CAN26/Ports/PortSTM32g4xx.c:102:8:CANPollAndReceive	72	static

@@ -18,6 +18,8 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "telemetry_can.h"
+#include "telemetry_led.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -107,9 +109,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  TelemetryLEDs_Init();
+	  TelemetryCAN_Init(&hfdcan2);
     /* USER CODE END WHILE */
 	  TelemetryCAN_Process();
 	  TelemetryLEDs_Update();
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

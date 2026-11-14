@@ -1,0 +1,5 @@
+../Core/Src/telemetry_led.c:7:6:TelemetryLEDs_SetError	1
+../Core/Src/telemetry_led.c:16:6:TelemetryLEDs_Init	1
+../Core/Src/telemetry_led.c:31:6:TelemetryLEDs_Update	5
+../Core/Src/telemetry_led.c:54:6:TelemetryLEDs_SetDebug	1
+../Core/Src/telemetry_led.c:63:6:TelemetryLEDs_OnCANReceive	1
