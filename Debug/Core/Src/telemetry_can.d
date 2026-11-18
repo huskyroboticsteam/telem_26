@@ -39,7 +39,7 @@ Core/Src/telemetry_can.o: ../Core/Src/telemetry_can.c \
  ../Libraries/CAN26/Packets/Peripheral.h \
  ../Libraries/CAN26/Packets/DecodePeripheral.h \
  ../Libraries/CAN26/Packets/Power.h \
- ../Libraries/CAN26/Packets/DecodePower.h
+ ../Libraries/CAN26/Packets/DecodePower.h ../Core/Inc/main.h
 ../Core/Inc/telemetry_can.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
 ../Core/Inc/stm32g4xx_hal_conf.h:
@@ -84,3 +84,4 @@ Core/Src/telemetry_can.o: ../Core/Src/telemetry_can.c \
 ../Libraries/CAN26/Packets/DecodePeripheral.h:
 ../Libraries/CAN26/Packets/Power.h:
 ../Libraries/CAN26/Packets/DecodePower.h:
+../Core/Inc/main.h:

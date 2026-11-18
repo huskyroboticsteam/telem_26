@@ -18,12 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "telemetry_can.h"
-#include "telemetry_led.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "telemetry_can.h"
+#include "telemetry_led.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,6 +101,11 @@ int main(void)
   MX_TIM8_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+  TelemetryLEDs_Init();
+
+  TelemetryCAN_Init(&hfdcan2);
+
+  TelemetryLimits_Init();
 
   /* USER CODE END 2 */
 
@@ -109,13 +113,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  TelemetryLEDs_Init();
-	  TelemetryCAN_Init(&hfdcan2);
     /* USER CODE END WHILE */
-	  TelemetryCAN_Process();
-	  TelemetryLEDs_Update();
 
     /* USER CODE BEGIN 3 */
+	  TelemetryCAN_Process();
+	  TelemetryLimits_Update();
+	  TelemetryLEDs_Update();
   }
   /* USER CODE END 3 */
 }
