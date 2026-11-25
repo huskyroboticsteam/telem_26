@@ -1,0 +1,2 @@
+../Core/Src/telemetry_servo.c:7:6:TelemetryServo_Init	5
+../Core/Src/telemetry_servo.c:21:6:TelemetryServo_SetAngle	5

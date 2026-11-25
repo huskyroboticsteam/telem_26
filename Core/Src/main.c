@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include "telemetry_can.h"
 #include "telemetry_led.h"
+#include "telemetry_servo.h"
+#include "ws2812_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -106,6 +108,19 @@ int main(void)
   TelemetryCAN_Init(&hfdcan2);
 
   TelemetryLimits_Init();
+
+  TelemetryServo_Init(&htim8);
+
+  const WS2812_Config strip_test = {
+      .timer           = &htim3,
+      .channel         = TIM_CHANNEL_3,  // PB0
+      .led_count       = 10u,
+      .zero_high_ticks = 6u,
+      .one_high_ticks  = 11u,
+      .latch_slots     = 256u
+  }; // This is temporary, actual values will vary according to actual led.
+
+  WS2812_Init(&strip_test);
 
   /* USER CODE END 2 */
 

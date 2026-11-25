@@ -3,6 +3,8 @@
 #include "telemetry_led.h"
 #include "CAN26.h"
 #include "main.h"
+#include "telemetry_servo.h"
+#include "ws2812_driver.h"
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -97,6 +99,55 @@ void TelemetryCAN_Process(void)
             }
 
             // Future commands go here:
+
+            // Set servo angle for mast cam
+            case CAN_COMMAND_ID__SERVO_ANGLE:
+            {
+            	if (rxPacket.contentsLength != 4u) {
+            		failure = true;
+            	    break;
+            	}
+
+            	CANPeripheralPacket_SetServoAngleDecoded_t servo =
+            	        CANPeripheralPacket_SetServoAngle_Decode(&rxPacket);
+
+            	if (servo.servo_id == 1u) {
+            		failure = !TelemetryServo_SetAngle(servo.servo_angle * 360.0f);
+            	}
+
+            	break;
+            }
+
+            // Set led color for rover
+            case CAN_COMMAND_ID__ROVER_LED_COLOR:
+            {
+                if (rxPacket.contentsLength != 3u) {
+                    failure = true;
+                    break;
+                }
+
+                CANPeripheralPacket_SetRoverLEDColor_Decoded_t rgb =
+                    CANPeripheralPacket_SetRoverLEDColor_Decode(&rxPacket);
+
+                if (rgb.red == 255u && rgb.green == 0u && rgb.blue == 0u) {
+                    WS2812_SetRed();
+                    failure = false;
+                } else if (rgb.red == 0u && rgb.green == 255u && rgb.blue == 0u) {
+                    WS2812_SetGreen();
+                    failure = false;
+                } else if (rgb.red == 0u && rgb.green == 0u && rgb.blue == 255u) {
+                    WS2812_SetBlue();
+                    failure = false;
+                } else if (rgb.red == 0u && rgb.green == 0u && rgb.blue == 0u) {
+                    WS2812_Reset();
+                    failure = false;
+                } else {
+                    failure = true;
+                }
+
+                break;
+            }
+
 
             // brake control
             case CAN_COMMAND_ID__SET_BRAKE_CONTROL:
