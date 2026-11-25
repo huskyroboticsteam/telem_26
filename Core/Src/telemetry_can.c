@@ -20,13 +20,16 @@ static CANPacket_t txPacket;
 // Pointer to the STM32 FDCAN peripheral
 static FDCAN_HandleTypeDef *canHandle = NULL;
 
+
+
 static CANDevice_t telemetryDevice = {
     .peripheralDomain = 1,
     .powerDomain = 0,
     .motorDomain = 0,
     .deviceUUID = CAN_UUID_TELEMETRY
 };
-
+static bool switch1Reported = false;
+static bool switch2Reported = false;
 static CANDevice_t jetson = {
     .peripheralDomain = 0,
     .powerDomain = 0,
@@ -101,6 +104,11 @@ void TelemetryCAN_Process(void)
             // brake control
             case CAN_COMMAND_ID__SET_BRAKE_CONTROL:
             {
+            	if (rxPacket.contentsLength < 2) {
+            	        failure = true;
+            	        break;
+            	    }
+
                 CANPeripheralPacket_SetBrakeControl_Decoded_t brakePacket =
                     CANPeripheralPacket_SetBrakes_Decode(&rxPacket);
 
@@ -152,6 +160,21 @@ void TelemetryCAN_Process(void)
             }
 
             // CAN_COMMAND_ID__RESET
+            case CAN_COMMAND_ID__RESET:
+            {
+            	// Confirm POWER_CYCLE behavior
+            	// Currently keeps DY2025 behavior: PA3 driven HIGH on RESET.
+
+
+                HAL_GPIO_WritePin(
+                    POWER_CYCLE_GPIO_Port,
+                    POWER_CYCLE_Pin,
+                    GPIO_PIN_SET
+                );
+
+                failure = false;
+                break;
+            }
 
 
             default:
@@ -218,6 +241,9 @@ void TelemetryLimits_Init(void)
 {
     previousSwitch1 = TelemetryLimits_IsSwitch1Active();
     previousSwitch2 = TelemetryLimits_IsSwitch2Active();
+
+    switch1Reported = false;
+    switch2Reported = false;
 }
 
 void TelemetryLimits_Update(void)
@@ -225,15 +251,17 @@ void TelemetryLimits_Update(void)
     bool switch1 = TelemetryLimits_IsSwitch1Active();
     bool switch2 = TelemetryLimits_IsSwitch2Active();
 
-    if (switch1 != previousSwitch1) {
+    if (!switch1Reported || switch1 != previousSwitch1) {
         if (TelemetryCAN_ReportLimitSwitch(1, switch1)) {
             previousSwitch1 = switch1;
+            switch1Reported = true;
         }
     }
 
-    if (switch2 != previousSwitch2) {
+    if (!switch2Reported || switch2 != previousSwitch2) {
         if (TelemetryCAN_ReportLimitSwitch(2, switch2)) {
             previousSwitch2 = switch2;
+            switch2Reported = true;
         }
     }
 }
